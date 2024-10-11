@@ -10,6 +10,9 @@ RUN apt-get update && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs=20.18.0-1nodesource1
 
+# Create the /data directory and set ownership to 'user'
+RUN mkdir -p /data-langflow /data-uploads && chown -R user:root /data-langflow /data-uploads
+
 # Switch back to the user
 USER user
 

@@ -12,7 +12,7 @@ export const config = {
 };
 
 // Use the environment variable or fallback to 'uploads'
-const uploadDirectory = process.env.FILE_UPLOAD_DIRECTORY || path.join(process.cwd(), 'uploads');
+const uploadDirectory = process.env.FILE_UPLOAD_DIRECTORY || path.join(process.cwd(), 'data/uploads');
 
 // Extend File type to include webkitRelativePath
 interface FileWithRelativePath extends File {
