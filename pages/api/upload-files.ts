@@ -92,7 +92,7 @@ export default async function handleFileUpload(
     // console.log('Initialized progressStore for Upload ID:', uploadId);
 
     // Handle file copying
-    handleFiles(validFiles, collectionPath, uploadId);
+    handleFiles(validFiles, collectionPath);
 
     // Save metadata
     saveMetadata(collectionPath, labels);
@@ -182,8 +182,7 @@ function extractLabels(fields: Fields): { [key: string]: string }[] {
 // Handle copying files to destination
 function handleFiles(
   files: FileWithRelativePath[],
-  collectionPath: string,
-  uploadId: string
+  collectionPath: string
 ) {
   files.forEach((file) => {
     const relativePath =
@@ -263,7 +262,7 @@ async function processFiles(
         });
 
         try {
-          const response = await axios.post(apiUrl, payload, {
+          await axios.post(apiUrl, payload, {
             headers: {
               'Content-Type': 'application/json',
             },
@@ -303,7 +302,7 @@ function updateProgress(
     return;
   }
 
-  let updated = { ...progress };
+  const updated = { ...progress };
 
   if (updates.processedFilesIncrement) {
     updated.processedFiles += updates.processedFilesIncrement;

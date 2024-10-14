@@ -60,7 +60,6 @@ const UploadFiles = () => {
     processingFiles: [],
     isComplete: false,
   });
-  const [uploadId, setUploadId] = useState<string | null>(null);
   const startTimeRef = useRef<Date | null>(null); // Changed from state to ref
   const [totalTime, setTotalTime] = useState<string>('');
 
@@ -154,7 +153,6 @@ const UploadFiles = () => {
 
     const totalFiles = allFiles.length;
     const generatedUploadId = uuidv4();
-    setUploadId(generatedUploadId);
     setProgressData({
       totalFiles,
       processedFiles: 0,
@@ -163,7 +161,7 @@ const UploadFiles = () => {
     });
     setIsModalOpen(true);
     setIsSubmitting(true);
-    startTimeRef.current = new Date(); // Set startTime using ref
+    startTimeRef.current = new Date();
 
     const formData = new FormData();
     formData.append('collectionName', collectionName);
@@ -181,18 +179,12 @@ const UploadFiles = () => {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
-          // Optionally, you can update upload progress here
-          // For simplicity, we're focusing on processing progress
-        },
       });
 
       console.log('Upload response:', uploadResponse.data);
 
       // Extract uploadId from response to ensure consistency
       const responseUploadId = uploadResponse.data.uploadId;
-      setUploadId(responseUploadId);
       console.log('Upload ID from backend:', responseUploadId);
 
       // Start polling for processing progress
@@ -251,8 +243,6 @@ const UploadFiles = () => {
     setSelectedItems([]);
     setLabels([]);
     setIsSubmitting(false);
-    setUploadId(null);
-    // setStartTime(null); // No longer using state for startTime
     setTotalTime('');
     setProgressData({
       totalFiles: 0,

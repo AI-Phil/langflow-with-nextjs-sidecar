@@ -1,5 +1,4 @@
 // lib/progressStore.ts
-
 export interface ProgressData {
     totalFiles: number;
     processedFiles: number;
@@ -29,6 +28,7 @@ export interface ProgressData {
   
   // Ensure a single instance across module reloads in development
   declare global {
+    // eslint-disable-next-line no-var
     var progressStoreInstance: ProgressStore | undefined;
   }
   
