@@ -18,7 +18,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Remove, Add, Delete, Folder, InsertDriveFile } from '@mui/icons-material';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios'; // Import isAxiosError
 import { v4 as uuidv4 } from 'uuid';
 
 interface DirectoryInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -174,12 +174,16 @@ const UploadFiles = () => {
     });
 
     try {
-      // Use Axios to track upload progress
-      const uploadResponse = await axios.post('/api/upload-files', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // Use Axios with typed response
+      const uploadResponse = await axios.post<{ success: boolean; message: string; uploadId: string }>(
+        '/api/upload-files',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
       console.log('Upload response:', uploadResponse.data);
 
@@ -197,7 +201,9 @@ const UploadFiles = () => {
         }
 
         try {
-          const progressResponse = await axios.get(`/api/upload-progress?uploadId=${responseUploadId}`);
+          const progressResponse = await axios.get<ProgressData>(
+            `/api/upload-progress?uploadId=${responseUploadId}`
+          );
           const data: ProgressData = progressResponse.data;
 
           console.log('Progress data:', data);
@@ -214,8 +220,8 @@ const UploadFiles = () => {
             setTotalTime(`${minutes}m ${seconds}s`);
             setIsSubmitting(false);
           }
-        } catch (error) {
-          if (axios.isAxiosError(error) && error.response?.status === 404) {
+        } catch (error: unknown) {
+          if (isAxiosError(error) && error.response?.status === 404) {
             // Progress data not found, possibly completed and cleaned up
             console.log('Progress data not found. Possibly completed.');
             clearInterval(pollingInterval);
@@ -230,7 +236,7 @@ const UploadFiles = () => {
           }
         }
       }, 1000); // Poll every second
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error uploading files:', error);
       alert('An error occurred while uploading files.');
       setIsSubmitting(false);

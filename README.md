@@ -1,40 +1,101 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Langflow with Next.js Sidecar
 
-## Getting Started
+This repo contains code and config to allow you to run a Langflow server along with a Next.js server within a single Docker container.
 
-First, run the development server:
+## Getting Going
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+You need to have Node.js (tested with v20.18.0) and NPM (tested with v10.8.2) installed, as well as Docker or a Docker-compatible engine like Podman.
+
+### Building
+Clone this repo, and within this directory:
+
+```
+mkdir data
+mkdir data/uploads
+mkdir data/langflow
+npm run build
+docker build -t langflow-with-nextjs-sidecar .
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This will download and build the necessary components.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+### Environment Setup
+Copy the `.env.example` file into a file named `.env`; these environment variables will be used by the container:
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+```
+cp .env.example .env
+```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+And edit this to include environment variables. To run the sample `upload-files` page, you'll need an DataStax Astra database and token as well as an OpenAI API key. You can alternatively modify the flows to suit your requirements.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Running the Environment
 
-## Learn More
+Depending if you are in a Unix-like environment:
+```bash
+docker run -d -p 7860:7860 -p 3000:3000 -v "$(pwd)/data/langflow:/data-langflow" -v "$(pwd)/data/uploads:/data-uploads" --env-file .env langflow-with-nextjs-sidecar
+```
 
-To learn more about Next.js, take a look at the following resources:
+or Windows PowerShell:
+```powershell
+docker run -d -p 7860:7860 -p 3000:3000 -v "${pwd}\data\langflow:/data-langflow" -v "${pwd}\data\uploads:/data-uploads" --env-file .env langflow-with-nextjs-sidecar
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This will start the container. One the container's log, you'll eventually see something like this:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```
+> langflow-with-nextjs-sidecar@0.1.0 start
+> next start
 
-## Deploy on Vercel
+  ▲ Next.js 14.2.15
+  - Local:        http://localhost:3000
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+ ✓ Starting...
+ ✓ Ready in 3.9s
+Starting Langflow v1.0.18...
+╭───────────────────────────────────────────────────────────────────╮
+│ Welcome to ⛓ Langflow                                             │
+│                                                                   │
+│                                                                   │
+│ A new version of Langflow is available: 1.0.19                    │
+│                                                                   │
+│ Run 'pip install Langflow -U' to update.                          │
+│                                                                   │
+│ Collaborate, and contribute at our GitHub Repo 🌟                 │
+│                                                                   │
+│ We collect anonymous usage data to improve Langflow.              │
+│ You can opt-out by setting DO_NOT_TRACK=true in your environment. │
+│                                                                   │
+│ Access http://0.0.0.0:7860                                        │
+╰───────────────────────────────────────────────────────────────────╯
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+in which case you are ready to go.
+
+### Accessing Applications
+
+If you've not modified the ports on the `docker` command above:
+
+* Langflow is at [http://localhost:7860](http://localhost:7860)
+* Example File Upload page is at [http://localhost:3000/upload-files](http://localhost:3000/upload-files), but you first need to load the sample flows!
+
+### Sample Flows
+
+In the `flows` directory are some `.json` files you can import into Langflow. Once you import `Server File Loader.json`, the `upload-files` page should work.
+
+## Adding to Next.js Application
+
+### Environment Setup
+
+Make a copy of `.env`:
+
+```
+cp .env .env.local
+```
+
+And edit that file. Most importantly for the `upload-files` page is to add a line:
+
+```
+LOCAL_FILE_UPLOAD_DIRECTORY=./data/uploads
+```
+
+As this will allow the Node application running outside of the container to upload files to a location accessible to the development Next.js application in the same place as the Langflow container expects to find them.
