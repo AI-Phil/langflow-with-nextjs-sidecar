@@ -6,8 +6,22 @@ This repo contains code and config to allow you to run a Langflow server along w
 
 You need to have Node.js (tested with v20.18.0) and NPM (tested with v10.8.2) installed, as well as Docker or a Docker-compatible engine like Podman.
 
+### Installing Node, NPM, and Docker
+
+You can skip this section if you already have it installed!
+
+#### Installing Node
+
+Simplest thing is the installer at https://nodejs.org/en/download/package-manager , and for more options/details the instructions at https://docs.npmjs.com/downloading-and-installing-node-js-and-npm . The `v20.18.0` version above is the latest-at-time-of-writing LTS release of `v20`.
+
+#### Instaling Docker
+
+Docker can be installed from https://docs.docker.com/engine/install/ , you should likely look for the "Docker Desktop" links rather than installing onto a server (this was developed and tested with Docker Desktop).
+
+Note there are commercial license considerations associated with running Docker; Podman https://podman.io/ is an open-source Docker-compatible alternative; there is a Podman Desktop available for download.
+
 ### Building
-Clone this repo, and within this directory:
+Once the necessary environment tools are installed, clone this repo, and within this directory:
 
 ```
 mkdir data
@@ -26,7 +40,10 @@ Copy the `.env.example` file into a file named `.env`; these environment variabl
 cp .env.example .env
 ```
 
-And edit this to include environment variables. To run the sample `upload-files` page, you'll need an DataStax Astra database and token as well as an OpenAI API key. You can alternatively modify the flows to suit your requirements.
+1. Edit this to include additional environment variables.
+   * To run the sample `upload-files` page, you'll need an DataStax Astra database and token as well as an OpenAI API key.
+   * You can alternatively modify the flows to suit your particular needs.
+2. Review the `LANGFLOW_WORKERS` value; the higher this value, the more concurrent requests Langflow can process.
 
 ### Running the Environment
 

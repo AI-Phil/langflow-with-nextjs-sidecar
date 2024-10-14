@@ -3,7 +3,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { IncomingForm, Fields, Files, File } from 'formidable';
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import pLimit from 'p-limit';
@@ -215,10 +214,8 @@ async function processFiles(
 ) {
   const apiUrl = 'http://localhost:7860/api/v1/run/server-file-loader';
 
-  // Manage concurrency based on CPU count
-  const cpuCount = os.cpus().length;
-  const defaultConcurrency = Math.max(1, Math.floor(cpuCount / 2));
-  const concurrentRequests = process.env.CONCURRENT_REQUESTS_TO_LANGFLOW;
+  const defaultConcurrency = 1; // By default, Langflow has only 1 worker available
+  const concurrentRequests = process.env.LANGFLOW_WORKERS;
   const parsedConcurrency = concurrentRequests
     ? parseInt(concurrentRequests, 10)
     : defaultConcurrency;
