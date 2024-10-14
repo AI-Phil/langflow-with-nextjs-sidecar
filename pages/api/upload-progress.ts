@@ -1,6 +1,6 @@
 // pages/api/upload-progress.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { progressStore, ProgressData } from '../../lib/progressStore';
+import { progressStore } from '../../lib/progressStore';
 
 export default function handleProgress(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -12,7 +12,7 @@ export default function handleProgress(req: NextApiRequest, res: NextApiResponse
 
   const { uploadId } = req.query;
 
-  console.log('Received progress request for Upload ID:', uploadId);
+//   console.log('Received progress request for Upload ID:', uploadId);
 
   if (!uploadId || typeof uploadId !== 'string') {
     return res
@@ -29,6 +29,6 @@ export default function handleProgress(req: NextApiRequest, res: NextApiResponse
       .json({ success: false, message: 'Progress not found for the given uploadId.' });
   }
 
-  console.log(`Progress for Upload ID ${uploadId}:`, progress);
+//   console.log(`Progress for Upload ID ${uploadId}:`, progress);
   return res.status(200).json(progress);
 }

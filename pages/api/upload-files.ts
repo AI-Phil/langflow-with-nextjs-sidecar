@@ -7,7 +7,7 @@ import os from 'os';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import pLimit from 'p-limit';
-import { progressStore, ProgressData } from '../../lib/progressStore';
+import { progressStore } from '../../lib/progressStore';
 
 // Disable Next.js body parsing, since we're handling it with `formidable`
 export const config = {
@@ -89,7 +89,7 @@ export default async function handleFileUpload(
       processingFiles: [],
       isComplete: false,
     });
-    console.log('Initialized progressStore for Upload ID:', uploadId);
+    // console.log('Initialized progressStore for Upload ID:', uploadId);
 
     // Handle file copying
     handleFiles(validFiles, collectionPath, uploadId);
@@ -100,18 +100,18 @@ export default async function handleFileUpload(
     // Start processing files asynchronously
     processFiles(validFiles, unixifyPath(langflowDownloadDirectory), collectionName, labels, uploadId)
       .then(() => {
-        console.log('File processing completed successfully.');
+        // console.log('File processing completed successfully.');
         // Mark as complete instead of deleting
         const progress = progressStore.get(uploadId);
         if (progress) {
           progress.isComplete = true;
           progressStore.set(uploadId, progress);
-          console.log(`Marked progress as complete for Upload ID ${uploadId}.`);
+          // console.log(`Marked progress as complete for Upload ID ${uploadId}.`);
 
           // Schedule deletion after 5 minutes to prevent memory leaks
           setTimeout(() => {
             progressStore.delete(uploadId);
-            console.log(`Progress data for Upload ID ${uploadId} has been deleted after completion.`);
+            // console.log(`Progress data for Upload ID ${uploadId} has been deleted after completion.`);
           }, 5 * 60 * 1000); // 5 minutes
         }
       })
@@ -255,6 +255,8 @@ async function processFiles(
           },
         };
 
+        console.log(`Starting processing for: ${relativePath}`);
+
         // Update progress: add to processingFiles
         updateProgress(uploadId, {
           processingFiles: [relativePath],
@@ -266,7 +268,7 @@ async function processFiles(
               'Content-Type': 'application/json',
             },
           });
-          console.log(`Successfully processed file: ${filePath}`, response.data);
+          // console.log(`Successfully processed file: ${filePath}`, response.data);
         } catch (error) {
           if (axios.isAxiosError(error)) {
             console.error(`Error processing file: ${filePath}`, error.response?.data || error.message);
@@ -279,6 +281,7 @@ async function processFiles(
             processedFilesIncrement: 1,
             processingFilesRemove: [relativePath],
           });
+          console.log(`Finished processing for: ${relativePath}`);
         }
       })
     )
@@ -328,5 +331,5 @@ function updateProgress(
 
   // Update the store
   progressStore.set(uploadId, updated);
-  console.log(`Updated progress for Upload ID ${uploadId}:`, updated);
+  // console.log(`Updated progress for Upload ID ${uploadId}:`, updated);
 }
